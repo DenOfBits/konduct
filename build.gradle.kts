@@ -42,7 +42,9 @@ kotlin {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "io.github.denofbits"
+            //groupId = "io.github.denofbits"
+            groupId = "com.github.DenOfBits"
+
             artifactId = "konduct"
             version = project.version.toString()
             
