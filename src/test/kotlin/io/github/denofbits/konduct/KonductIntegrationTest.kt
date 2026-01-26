@@ -1,6 +1,7 @@
 package io.github.denofbits.konduct
 
 import io.github.denofbits.konduct.core.Konduct
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.query.gte
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -24,13 +26,13 @@ import kotlin.test.assertTrue
 
 @Document("products")
 data class Product(
-    @Id val id: String? = null,
+    @Id val id: ObjectId = ObjectId.get(),
     val name: String,
     val price: Double,
     val category: String,
     val status: String,
     val rating: Double? = null,
-    val inStock: Boolean = true
+    @Field("in_stock") val inStock: Boolean = true
 )
 
 @Configuration
@@ -277,5 +279,53 @@ class KonductIntegrationTest {
         // Then
         assertEquals(1, results.size)
         assertEquals("Premium Laptop", results[0].name)
+    }
+
+    @Test
+    fun `should perform filters on id field`() {
+
+
+        // Given
+        val konduct = Konduct(mongoTemplate)
+        mongoTemplate.insertAll(
+            listOf(
+                Product(id = ObjectId("6977724554db11048724b730"), name = "Premium Laptop", price = 1500.0, category = "Electronics", status = "active", rating = 4.8),
+                Product(id = ObjectId("6977724554db11048724b731"), name = "Budget Laptop", price = 500.0, category = "Electronics", status = "active", rating = 3.5),
+                Product(id = ObjectId("6977724554db11048724b732"), name = "Premium Phone", price = 1200.0, category = "Electronics", status = "inactive", rating = 4.9)
+            )
+        )
+
+        // When
+        val results = konduct.collection<Product>()
+            .match { Product::id eq ObjectId("6977724554db11048724b730") }
+            .toList()
+
+        // Then
+        assertEquals(1, results.size)
+        assertTrue(results.all { it.id == ObjectId("6977724554db11048724b730") })
+    }
+
+    @Test
+    fun `should perform filters on custom named fields`() {
+
+        // Given
+        val konduct = Konduct(mongoTemplate)
+        mongoTemplate.insertAll(
+            listOf(
+                Product(name = "Premium Laptop", price = 1500.0, category = "Electronics", status = "active", rating = 4.8, inStock = true),
+                Product(name = "Budget Laptop", price = 500.0, category = "Electronics", status = "active", rating = 3.5, inStock = true),
+                Product(name = "Premium Phone", price = 1200.0, category = "Electronics", status = "inactive", rating = 4.9, inStock = false)
+
+            )
+        )
+
+        // When
+        val results = konduct.collection<Product>()
+            .match { Product::inStock eq true }
+            .toList()
+
+        // Then
+        assertEquals(2, results.size)
+        assertTrue(results.all { it.inStock })
     }
 }
