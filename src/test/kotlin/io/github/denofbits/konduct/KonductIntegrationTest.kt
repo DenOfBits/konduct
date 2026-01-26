@@ -1,6 +1,7 @@
 package io.github.denofbits.konduct
 
 import io.github.denofbits.konduct.core.Konduct
+import io.github.denofbits.konduct.core.PagedResult
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -327,5 +328,40 @@ class KonductIntegrationTest {
         // Then
         assertEquals(2, results.size)
         assertTrue(results.all { it.inStock })
+    }
+
+    @Test
+    fun `should paginate`() {
+
+        // Given
+        val konduct = Konduct(mongoTemplate)
+        mongoTemplate.insertAll(
+            listOf(
+                Product(name = "Premium Laptop", price = 1500.0, category = "Electronics", status = "active", rating = 4.8, inStock = true),
+                Product(name = "Budget Laptop", price = 500.0, category = "Electronics", status = "active", rating = 3.5, inStock = true),
+                Product(name = "Headset", price = 1500.0, category = "Electronics", status = "active", rating = 4.8, inStock = true),
+                Product(name = "Smartphone", price = 500.0, category = "Electronics", status = "active", rating = 3.5, inStock = true),
+                Product(name = "Premium Laptop", price = 1500.0, category = "Electronics", status = "active", rating = 4.8, inStock = true),
+                Product(name = "Charger", price = 500.0, category = "Electronics", status = "active", rating = 3.5, inStock = true),
+                Product(name = "Premium Laptop", price = 1500.0, category = "Electronics", status = "active", rating = 4.8, inStock = true),
+                Product(name = "DELL Laptop", price = 500.0, category = "Electronics", status = "active", rating = 3.5, inStock = true),
+                Product(name = "Premium Speaker", price = 1200.0, category = "Electronics", status = "inactive", rating = 4.9, inStock = false)
+
+            )
+        )
+
+        // When
+        val results : PagedResult<Product>? = konduct.collection<Product>()
+            .match { Product::inStock eq true }
+            .paginate(page = 1, pageSize = 3)
+            .firstOrNull()
+
+        // Then
+        assertEquals(8, results?.total)
+        assertEquals(1, results?.page)
+        assertEquals(3, results?.pageSize)
+        assertEquals(3, results?.data?.size)
+        assertTrue(results!!.data.all { it.inStock })
+
     }
 }
