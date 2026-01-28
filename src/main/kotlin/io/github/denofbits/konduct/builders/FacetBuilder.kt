@@ -58,7 +58,7 @@ class FacetPipelineBuilder<T : Any> {
     fun group(block: GroupBuilder<T>.() -> Unit) {
         val builder = GroupBuilder<T>()
         builder.block()
-        stages.add(builder.build())
+        stages.addAll(builder.build())
     }
     
     fun count() {

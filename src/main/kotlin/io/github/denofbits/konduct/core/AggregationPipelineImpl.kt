@@ -43,12 +43,12 @@ class AggregationPipelineImpl<T : Any>(
     override fun group(block: GroupBuilder<T>.() -> Unit): AggregationPipeline<Document> {
         val builder = GroupBuilder<T>()
         builder.block()
-        val groupStage = builder.build()
+        val groupStages = builder.build()
         return AggregationPipelineImpl(
             mongoTemplate = mongoTemplate,
             collectionName = collectionName,
             documentType = Document::class,
-            stages = (stages + groupStage).toMutableList()
+            stages = (stages + groupStages).toMutableList()
         )
     }
 
@@ -62,6 +62,7 @@ class AggregationPipelineImpl<T : Any>(
             documentType = resultType,
             stages = (stages + groupStage).toMutableList()
         )
+
     }
 
     override fun <R : Any> facet(resultType: KClass<R>, block: FacetBuilder<T>.() -> Unit): AggregationPipeline<R> {
