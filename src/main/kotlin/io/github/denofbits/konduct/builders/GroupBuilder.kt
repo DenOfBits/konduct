@@ -17,6 +17,10 @@ class GroupBuilder<T : Any> {
         groupByField = field.getFieldName()
     }
 
+    fun by(vararg fields: KProperty1<T, *>) {
+        groupByField = fields.map { it.getFieldName() }
+    }
+
     fun by(fieldName: String) {
         groupByField = fieldName
     }
@@ -49,6 +53,15 @@ class GroupBuilder<T : Any> {
                 }
                 groupDoc["_id"] = idDoc
             }
+
+            is List<*> -> {
+                val idDoc = Document()
+                (groupBy as List<String>).forEach { value ->
+                    idDoc[value] = if (value is String) "\$$value" else value
+                }
+                groupDoc["_id"] = idDoc
+            }
+
             is CompositeKeyBuilder<*> -> {
                 val idDoc = Document()
                 (groupBy as CompositeKeyBuilder<T>).build().forEach { (key, value) ->
@@ -89,6 +102,18 @@ class GroupBuilder<T : Any> {
         when (val groupBy = groupByField) {
             is String -> {
                 addFieldsDoc[groupBy] = "\$_id"
+            }
+
+            is List<*> -> {
+                (groupBy as List<String>).forEach { value ->
+                    addFieldsDoc[value] = "\$_id.$value"
+                }
+            }
+
+            is CompositeKeyBuilder<*> -> {
+                (groupBy as CompositeKeyBuilder<T>).build().forEach { (key, _) ->
+                    addFieldsDoc[key] = "\$_id.$key"
+                }
             }
             is CompositeKeyBuilder<*> -> {
                 (groupBy as CompositeKeyBuilder<T>).build().forEach { (key, _) ->
@@ -239,7 +264,7 @@ class AccumulateBuilder<T : Any> {
         operations[this] = AccumulatorOperation.Last(fieldName)
     }
 
-    infix fun String.count(unit: Unit) {
+    fun String.count() {
         operations[this] = AccumulatorOperation.Count
     }
 
