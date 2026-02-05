@@ -1,5 +1,7 @@
 package io.github.denofbits.konduct.core
 
+import io.github.denofbits.konduct.builders.FacetBuilder
+import io.github.denofbits.konduct.builders.GroupBuilder
 import io.github.denofbits.konduct.builders.MatchBuilder
 import io.github.denofbits.konduct.builders.SortBuilder
 import org.bson.Document
@@ -48,7 +50,20 @@ interface AggregationPipeline<T : Any> {
      * Limit to N documents ($limit stage).
      */
     fun limit(count: Int): AggregationPipeline<T>
-    
+
+    fun group(block: GroupBuilder<T>.() -> Unit): AggregationPipeline<Document>
+
+    fun <R : Any> group(resultType: KClass<R>, block: GroupBuilder<T>.() -> Unit): AggregationPipeline<R>
+
+    fun <R : Any> facet(resultType: KClass<R>, block: FacetBuilder<T>.() -> Unit): AggregationPipeline<R>
+
+    /**
+     * Paginate result of previous stages output
+     */
+    fun paginate(page: Int, pageSize: Int): AggregationPipeline<PagedResult<T>>
+
+    fun <R : Any> into(resultType: KClass<R>): AggregationPipeline<R>
+
     /**
      * Execute pipeline and return all results.
      */
