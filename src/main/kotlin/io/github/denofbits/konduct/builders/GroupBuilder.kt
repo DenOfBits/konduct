@@ -127,72 +127,8 @@ class GroupBuilder<T : Any> {
         }
 
         return stages
-        //return CustomAggregationOperation(Document("\$group", groupDoc))
     }
 
-    /*internal fun build(): AggregationOperation {
-        when (val groupBy = groupByField) {
-            null -> throw IllegalStateException("Group by field not specified")
-            is String -> {
-                var groupOp = Aggregation.group(groupBy)
-                accumulators.forEach { (fieldName, operation) ->
-                    groupOp = applyAccumulator(groupOp, fieldName, operation)
-                }
-                return groupOp
-            }
-            is CompositeKeyBuilder<*> -> {
-                val fields = (groupBy as CompositeKeyBuilder<T>).build()
-                var groupOp = Aggregation.group(*fields.keys.toTypedArray())
-
-                fields.forEach { (key, value) ->
-                    when (value) {
-                        is String -> groupOp = groupOp.and(value).`as`(key)
-                        // Add more complex field types here if needed
-                    }
-                }
-
-                accumulators.forEach { (fieldName, operation) ->
-                    groupOp = applyAccumulator(groupOp, fieldName, operation)
-                }
-                return groupOp
-            }
-            else -> throw IllegalStateException("Unsupported group by type")
-        }
-    }*/
-
-    /*private fun applyAccumulator(
-        groupOp: GroupOperation,
-        fieldName: String,
-        operation: AccumulatorOperation
-    ): GroupOperation {
-        return when (operation) {
-            is AccumulatorOperation.Sum -> {
-                if (operation.value is Number) {
-                    groupOp.sum(operation.value.toString()).`as`(fieldName)
-                } else {
-                    groupOp.sum(operation.value as String).`as`(fieldName)
-                }
-            }
-            is AccumulatorOperation.SumExpression -> {  // ADD
-                val customOp = CustomAggregationOperation(
-                    Document("\$sum", operation.expression.toMongoExpression())
-                )
-                groupOp.sum(operation.expression.toMongoExpression()).`as`(fieldName)
-            }
-            is AccumulatorOperation.AvgExpression -> {  // ADD
-                groupOp.avg(operation.expression.toMongoExpression()).`as`(fieldName)
-            }
-            is AccumulatorOperation.Avg -> groupOp.avg(operation.field).`as`(fieldName)
-            is AccumulatorOperation.Min -> groupOp.min(operation.field).`as`(fieldName)
-            is AccumulatorOperation.Max -> groupOp.max(operation.field).`as`(fieldName)
-            is AccumulatorOperation.First -> groupOp.first(operation.field).`as`(fieldName)
-            is AccumulatorOperation.Last -> groupOp.last(operation.field).`as`(fieldName)
-            is AccumulatorOperation.Count -> groupOp.count().`as`(fieldName)
-            is AccumulatorOperation.CountDistinct -> groupOp.addToSet(operation.field).`as`(fieldName)
-            is AccumulatorOperation.Push -> groupOp.push(operation.field).`as`(fieldName)
-            is AccumulatorOperation.AddToSet -> groupOp.addToSet(operation.field).`as`(fieldName)
-        }
-    }*/
 }
 
 class CompositeKeyBuilder<T : Any> {

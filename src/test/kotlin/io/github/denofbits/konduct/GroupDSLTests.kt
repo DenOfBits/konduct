@@ -1,6 +1,7 @@
 package io.github.denofbits.konduct
 
 import io.github.denofbits.konduct.core.Konduct
+import io.github.denofbits.konduct.expressions.times
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -146,6 +147,40 @@ class GroupDSLTests {
 
     }
 
+    @Test
+    fun `should group using expression in accumulators`() {
+        // Given
+        val konduct = Konduct(mongoTemplate)
+        mongoTemplate.insertAll(
+            listOf(
+                Product(name = "Laptop", price = 1200.0, category = "Electronics", status = "active"),
+                Product(name = "Laptop", price = 200.0, category = "Electronics", status = "active"),
+                Product(name = "Shea", price = 25.0, category = "Edible", status = "inactive"),
+                Product(name = "Cocoa", price = 75.0, category = "Edible", status = "active"),
+                Product(name = "Pineapple", price = 75.0, category = "Edible", status = "active"),
+                Product(name = "Cashew", price = 75.0, category = "Edible", status = "active")
 
 
+
+            )
+        )
+
+        class Summary(val category: String, val avgPrice: Double, val vat: Double)
+        // When
+        val results = konduct.collection<Product>()
+            .group {
+                by (Product::status, Product::category)
+                accumulate {
+                    "avgPrice" avg  (Product::price)
+                    "vat" sum (Product::price * 0.18)
+                }
+            }
+            .into(Summary::class)
+            .toList()
+
+        // Then
+        assertEquals(3, results.size)
+        assertEquals(252.0, results.firstOrNull { it.category == "Electronics" }?.vat)
+
+    }
 }

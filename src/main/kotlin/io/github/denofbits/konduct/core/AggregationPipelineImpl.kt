@@ -52,6 +52,14 @@ class AggregationPipelineImpl<T : Any>(
         )
     }
 
+    override fun customStage(stageName: String, block: CustomStageBuilder.() -> Unit): AggregationPipeline<T> {
+        val builder = CustomStageBuilder()
+        builder.block()
+        val stageDoc = builder.build()
+        val customOp = CustomAggregationOperation(Document(stageName, stageDoc))
+        return copy(stages = stages + customOp)
+    }
+
     override fun <R : Any> group(resultType: KClass<R>, block: GroupBuilder<T>.() -> Unit): AggregationPipeline<R> {
         val builder = GroupBuilder<T>()
         builder.block()
@@ -167,6 +175,13 @@ class AggregationPipelineImpl<T : Any>(
 
     override fun toAggregation(): Aggregation {
         return Aggregation.newAggregation(stages)
+    }
+
+    override fun addFields(block: AddFieldsBuilder<T>.() -> Unit): AggregationPipeline<T> {
+        val builder = AddFieldsBuilder<T>()
+        builder.block()
+        val addFieldsStage = builder.build()
+        return copy(stages = stages + addFieldsStage)
     }
 
     override fun toJson(): String {

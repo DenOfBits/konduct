@@ -1,9 +1,6 @@
 package io.github.denofbits.konduct.core
 
-import io.github.denofbits.konduct.builders.FacetBuilder
-import io.github.denofbits.konduct.builders.GroupBuilder
-import io.github.denofbits.konduct.builders.MatchBuilder
-import io.github.denofbits.konduct.builders.SortBuilder
+import io.github.denofbits.konduct.builders.*
 import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import kotlin.reflect.KClass
@@ -53,9 +50,22 @@ interface AggregationPipeline<T : Any> {
 
     fun group(block: GroupBuilder<T>.() -> Unit): AggregationPipeline<Document>
 
+    /**
+     * Perform grouping operations in pipeline
+     */
     fun <R : Any> group(resultType: KClass<R>, block: GroupBuilder<T>.() -> Unit): AggregationPipeline<R>
 
     fun <R : Any> facet(resultType: KClass<R>, block: FacetBuilder<T>.() -> Unit): AggregationPipeline<R>
+
+    /**
+     * Performs add fields operations
+     */
+    fun addFields(block: AddFieldsBuilder<T>.() -> Unit): AggregationPipeline<T>
+
+    /**
+     * For building custom stages
+     */
+    fun customStage(stageName: String, block: CustomStageBuilder.() -> Unit): AggregationPipeline<T>
 
     /**
      * Paginate result of previous stages output
