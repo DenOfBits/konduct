@@ -90,6 +90,60 @@ Multiple conditions are combined with AND by default.
 }
 ```
 
+## Expression-Based Matching
+
+For complex comparisons involving multiple fields or calculations:
+```kotlin
+konduct.collection()
+    .match {
+        Order::status eq "active"
+        expr {
+            (Order::quantity * Order::price) gte 1000
+        }
+    }
+    .toList()
+```
+
+### Comparing Fields
+```kotlin
+.match {
+    expr {
+        Product::sellingPrice gt Product::costPrice
+    }
+}
+```
+
+### Complex Calculations
+```kotlin
+.match {
+    expr {
+        ((Order::total - Order::discount) * (Order::taxRate / 100)) gte 50
+    }
+}
+```
+
+### Using Variables (in Lookup Pipelines)
+```kotlin
+.lookup {
+    from(OrderItem::class)
+    let {
+        "orderId" to Order::id
+        "minQuantity" to 5
+    }
+    pipeline {
+        match {
+            expr {
+                and(
+                    OrderItem::orderId eq variable("orderId"),
+                    OrderItem::quantity gte variable("minQuantity")
+                )
+            }
+        }
+    }
+    into("items")
+}
+```
+
 ## Real-World Examples
 
 ### Find High-Value Orders
