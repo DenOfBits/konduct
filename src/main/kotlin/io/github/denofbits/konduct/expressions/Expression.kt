@@ -1,5 +1,6 @@
 package io.github.denofbits.konduct.expressions
 
+import io.github.denofbits.konduct.builders.getFieldName
 import kotlin.reflect.KProperty1
 
 sealed interface Expression {
@@ -38,3 +39,24 @@ data class CondExpression(val branches: List<Pair<String, String>>, val default:
         )
     )
 }
+
+data class ConcatExpression(val parts: List<Any>) : Expression {
+    override fun toMongoExpression() = mapOf("\$concat" to parts.map {
+        when (it) {
+            is String -> if (it.startsWith("$")) it else it
+            is Expression -> it.toMongoExpression()
+            else -> it
+        }
+    })
+}
+
+fun concat(vararg parts: Any): Expression {
+    return ConcatExpression(parts.toList())
+}
+
+data class SumArrayExpression(val field: String) : Expression {
+    override fun toMongoExpression() = mapOf("\$sum" to "\$$field")
+}
+
+fun sumArray(fieldName: String): Expression = SumArrayExpression(fieldName)
+fun <T> sumArray(field: KProperty1<T, *>): Expression = SumArrayExpression(field.getFieldName())

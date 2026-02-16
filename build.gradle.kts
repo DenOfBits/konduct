@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.22"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.22"
+    id("org.jetbrains.dokka") version "1.9.10"
     `maven-publish`
 }
 
@@ -78,5 +79,31 @@ publishing {
                 }
             }
         }
+    }
+}
+
+// Configure Dokka
+tasks.dokkaHtml.configure {
+    outputDirectory.set(file("docs/api"))
+
+    dokkaSourceSets {
+        named("main") {
+            moduleName.set("Konduct")
+            //includes.from("Module.md")
+
+            /*sourceLink {
+                localDirectory.set(file("src/main/kotlin"))
+                remoteUrl.set(uri("https://github.com/DenOfBits/konduct/tree/main/src/main/kotlin").toURL())
+                remoteLineSuffix.set("#L")
+            }*/
+        }
+    }
+}
+
+// Generate docs task
+tasks.register("generateDocs") {
+    dependsOn("dokkaHtml")
+    doLast {
+        println("Documentation generated in docs/api")
     }
 }

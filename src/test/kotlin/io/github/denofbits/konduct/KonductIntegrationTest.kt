@@ -33,6 +33,7 @@ data class Product(
     val category: String,
     val status: String,
     val rating: Double? = null,
+    val ratingHistory: List<Int>? = null,
     @Field("in_stock") val inStock: Boolean = true
 )
 

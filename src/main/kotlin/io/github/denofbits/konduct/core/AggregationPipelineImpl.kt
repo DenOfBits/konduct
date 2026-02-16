@@ -52,6 +52,14 @@ class AggregationPipelineImpl<T : Any>(
         )
     }
 
+    override fun customStage(stageName: String, block: CustomStageBuilder.() -> Unit): AggregationPipeline<T> {
+        val builder = CustomStageBuilder()
+        builder.block()
+        val stageDoc = builder.build()
+        val customOp = CustomAggregationOperation(Document(stageName, stageDoc))
+        return copy(stages = stages + customOp)
+    }
+
     override fun <R : Any> group(resultType: KClass<R>, block: GroupBuilder<T>.() -> Unit): AggregationPipeline<R> {
         val builder = GroupBuilder<T>()
         builder.block()
@@ -63,6 +71,37 @@ class AggregationPipelineImpl<T : Any>(
             stages = (stages + groupStage).toMutableList()
         )
 
+    }
+
+    override fun <F : Any> lookup(block: LookupBuilder<T>.() -> Unit): AggregationPipeline<T> {
+        val builder = LookupBuilder<T>()
+        builder.block()
+        val lookupStage = builder.build()
+        return copy(stages = stages + lookupStage)
+    }
+
+    override fun unwind(field: String, preserveNullAndEmptyArrays: Boolean): AggregationPipeline<T> {
+        val unwindDoc = if (preserveNullAndEmptyArrays) {
+            Document("\$unwind", Document()
+                .append("path", if (field.startsWith("$")) field else "\$$field")
+                .append("preserveNullAndEmptyArrays", true)
+            )
+        } else {
+            Document("\$unwind", if (field.startsWith("$")) field else "\$$field")
+        }
+
+        val unwindStage = CustomAggregationOperation(unwindDoc)
+        return copy(stages = stages + unwindStage)
+    }
+
+    override fun <F : Any> lookupAndMerge(
+        fromClass: KClass<F>,
+        block: LookupAndMergeBuilder<T, F>.() -> Unit
+    ): AggregationPipeline<T> {
+        val builder = LookupAndMergeBuilder<T, F>(fromClass)
+        builder.block()
+        val lookupStages = builder.build()
+        return copy(stages = stages + lookupStages)
     }
 
     override fun <R : Any> facet(resultType: KClass<R>, block: FacetBuilder<T>.() -> Unit): AggregationPipeline<R> {
@@ -134,7 +173,6 @@ class AggregationPipelineImpl<T : Any>(
         val aggregation = Aggregation.newAggregation(stages + Aggregation.limit(1))
         val typeToUse = originalType ?: documentType
 
-        println(aggregation.toString())
         if (documentType == PagedResult::class) {
             val doc = mongoTemplate.aggregate(aggregation, collectionName, Document::class.java).mappedResults.firstOrNull()
             if (doc != null) {
@@ -162,11 +200,18 @@ class AggregationPipelineImpl<T : Any>(
         val countStage = Aggregation.count().`as`("count")
         val aggregation = Aggregation.newAggregation(stages + countStage)
         val result = mongoTemplate.aggregate(aggregation, collectionName, Document::class.java).mappedResults
-        return result.firstOrNull()?.getLong("count") ?: 0L
+        return result.firstOrNull()?.getInteger("count")?.toLong() ?: 0L
     }
 
     override fun toAggregation(): Aggregation {
         return Aggregation.newAggregation(stages)
+    }
+
+    override fun addFields(block: AddFieldsBuilder<T>.() -> Unit): AggregationPipeline<T> {
+        val builder = AddFieldsBuilder<T>()
+        builder.block()
+        val addFieldsStage = builder.build()
+        return copy(stages = stages + addFieldsStage)
     }
 
     override fun toJson(): String {

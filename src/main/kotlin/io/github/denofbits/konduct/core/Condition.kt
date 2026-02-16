@@ -62,4 +62,11 @@ sealed class Condition {
             return Criteria().norOperator(condition.toCriteria())
         }
     }
+
+    data class ExprCondition(val expression: Any) : Condition() {
+        override fun toCriteria(): Criteria {
+            // Spring Data doesn't support $expr in Criteria, use raw
+            throw UnsupportedOperationException("ExprCondition should be handled in build()")
+        }
+    }
 }
