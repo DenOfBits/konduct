@@ -23,7 +23,7 @@ Add to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.denofbits:konduct:0.1.0-SNAPSHOT")
+    implementation("io.github.denofbits:konduct:1.2.0")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb:3.2.1")
 }
 ```
@@ -44,12 +44,42 @@ class ProductService(mongoTemplate: MongoTemplate) {
                 Product::price gte 100
             }
             .sort { 
-                Product::rating desc 
+                Product::rating desc
             }
             .limit(10)
             .toList()
     }
 }
+```
+
+## Comparison with Raw MongoDB
+
+### Before (Spring Data MongoDB)
+
+```kotlin
+val matchStage = Aggregation.match(
+    Criteria.where("status").`is`("active")
+        .and("price").gte(100)
+)
+val sortStage = Aggregation.sort(Sort.Direction.DESC, "rating")
+val limitStage = Aggregation.limit(10)
+
+val aggregation = Aggregation.newAggregation(matchStage, sortStage, limitStage)
+val results = mongoTemplate.aggregate(aggregation, "products", Product::class.java)
+    .mappedResults
+```
+
+### After (Konduct)
+
+```kotlin
+val results = konduct.collection<Product>()
+    .match { 
+        Product::status eq "active"
+        Product::price gte 100 
+    }
+    .sort { Product::rating desc }
+    .limit(10)
+    .toList()
 ```
 
 ### Extension Function Style
@@ -117,61 +147,6 @@ val product = konduct.collection<Product>()
     .firstOrNull()
 ```
 
-## Comparison with Raw MongoDB
-
-### Before (Spring Data MongoDB)
-
-```kotlin
-val matchStage = Aggregation.match(
-    Criteria.where("status").`is`("active")
-        .and("price").gte(100)
-)
-val sortStage = Aggregation.sort(Sort.Direction.DESC, "rating")
-val limitStage = Aggregation.limit(10)
-
-val aggregation = Aggregation.newAggregation(matchStage, sortStage, limitStage)
-val results = mongoTemplate.aggregate(aggregation, "products", Product::class.java)
-    .mappedResults
-```
-
-### After (Konduct)
-
-```kotlin
-val results = konduct.collection<Product>()
-    .match { 
-        Product::status eq "active"
-        Product::price gte 100 
-    }
-    .sort { Product::rating desc }
-    .limit(10)
-    .toList()
-```
-
-## Current Features (v0.1.0)
-
-- ✅ Type-safe field references
-- ✅ Match stage with comparison operators (`eq`, `ne`, `gt`, `gte`, `lt`, `lte`)
-- ✅ Match stage with set operators (`in`, `nin`)
-- ✅ Match stage with string operators (`regex`)
-- ✅ Match stage with existence checks (`exists`, `isNull`, `isNotNull`)
-- ✅ Sort stage (ascending and descending)
-- ✅ Skip and Limit stages
-- ✅ Terminal operations (`toList()`, `firstOrNull()`, `count()`)
-- ✅ Debug support (`toJson()`, `toAggregation()`)
-
-## Roadmap
-
-- [ ] Group stage with accumulators
-- [ ] Expression system with operator overloading (`field1 * field2`)
-- [ ] Lookup stage (joins)
-- [ ] Project stage
-- [ ] AddFields stage
-- [ ] Unwind stage
-- [ ] Facet stage
-- [ ] Bucket stage
-- [ ] Built-in patterns (pagination, time grouping, previous value tracking)
-- [ ] Comprehensive documentation
-- [ ] Integration tests with Testcontainers
 
 ## Requirements
 
@@ -208,7 +183,7 @@ Konduct is inspired by [JetBrains Exposed](https://github.com/JetBrains/Exposed)
 
 ## Links
 
-- [Documentation](https://github.com/DenOfBits/konduct/wiki)
+- [Documentation](https://denofbits.github.io/konduct)
 - [Issue Tracker](https://github.com/DenOfBits/konduct/issues)
 - [Changelog](CHANGELOG.md)
 

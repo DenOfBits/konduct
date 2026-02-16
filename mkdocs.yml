@@ -78,7 +78,7 @@ nav:
       - E-Commerce: examples/ecommerce.md
       - Analytics: examples/analytics.md
       - Time-Series: examples/timeseries.md
-  - API Reference: api-reference.md
+  - API Reference: api/index.html
   - Contributing: contributing.md
   - Changelog: changelog.md
 
