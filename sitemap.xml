@@ -2,32 +2,92 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://denofbits.github.io/konduct/</loc>
-         <lastmod>2026-02-13</lastmod>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/changelog/</loc>
+         <lastmod>2026-02-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://denofbits.github.io/konduct/contributing/</loc>
-         <lastmod>2026-02-13</lastmod>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/examples/analytics/</loc>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/examples/ecommerce/</loc>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/examples/timeseries/</loc>
+         <lastmod>2026-02-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://denofbits.github.io/konduct/getting-started/installation/</loc>
-         <lastmod>2026-02-13</lastmod>
+         <lastmod>2026-02-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://denofbits.github.io/konduct/getting-started/quick-start/</loc>
-         <lastmod>2026-02-13</lastmod>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/guide/add-fields/</loc>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/guide/core-concepts/</loc>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/guide/custom-stages/</loc>
+         <lastmod>2026-02-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://denofbits.github.io/konduct/guide/expressions/</loc>
-         <lastmod>2026-02-13</lastmod>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/guide/facets/</loc>
+         <lastmod>2026-02-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://denofbits.github.io/konduct/guide/grouping/</loc>
-         <lastmod>2026-02-13</lastmod>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/guide/lookup/</loc>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/guide/match/</loc>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/guide/pagination/</loc>
+         <lastmod>2026-02-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://denofbits.github.io/konduct/guide/sorting/</loc>
+         <lastmod>2026-02-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
