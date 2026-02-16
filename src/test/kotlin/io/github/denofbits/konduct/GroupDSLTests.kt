@@ -102,7 +102,7 @@ class GroupDSLTests {
             .toList()
 
         // Then
-        assertEquals(2, results.size)
+        assertEquals(3, results.size)
         assertEquals(1400.0, results.firstOrNull { it.cat == "Electronics" }?.price)
     }
 

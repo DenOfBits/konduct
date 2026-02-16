@@ -62,6 +62,16 @@ interface AggregationPipeline<T : Any> {
      */
     fun addFields(block: AddFieldsBuilder<T>.() -> Unit): AggregationPipeline<T>
 
+    fun <F : Any> lookup(block: LookupBuilder<T>.() -> Unit): AggregationPipeline<T>
+
+    fun <F : Any> lookupAndMerge(
+        fromClass: KClass<F>,
+        block: LookupAndMergeBuilder<T, F>.() -> Unit
+    ): AggregationPipeline<T>
+
+
+    fun unwind(field: String, preserveNullAndEmptyArrays: Boolean): AggregationPipeline<T>
+
     /**
      * For building custom stages
      */
@@ -99,3 +109,8 @@ interface AggregationPipeline<T : Any> {
      */
     fun toJson(): String
 }
+
+inline fun <T : Any, reified F : Any> lookupAndMerge(
+    pipeline: AggregationPipeline<T>,
+    noinline block: LookupAndMergeBuilder<T, F>.() -> Unit
+): AggregationPipeline<T> = pipeline.lookupAndMerge(F::class, block)

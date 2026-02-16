@@ -1,6 +1,8 @@
 package io.github.denofbits.konduct.builders
 
 import io.github.denofbits.konduct.core.Condition
+import io.github.denofbits.konduct.core.CustomAggregationOperation
+import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.query.Criteria
@@ -14,10 +16,6 @@ import kotlin.reflect.jvm.javaField
 class MatchBuilder<T : Any> {
     private val conditions = mutableListOf<Condition>()
 
-    /*private fun <V> KProperty1<T, V>.getFieldName(): String {
-        val field = this.javaField?.getAnnotation(Field::class.java)
-        return field?.value ?: this.name
-    }*/
 
     // Equality operators
     infix fun <V> KProperty1<T, V>.eq(value: V) {
@@ -75,7 +73,13 @@ class MatchBuilder<T : Any> {
     fun KProperty1<T, *>.isNotNull() {
         this ne null
     }
-    
+
+    fun expr(block: ExprBuilder<T>.() -> Unit) {
+        val builder = ExprBuilder<T>()
+        builder.block()
+        conditions.add(Condition.ExprCondition(builder.build()))
+    }
+
     // Logical operators
     fun and(vararg conditions: Condition) {
         this.conditions.add(Condition.AndCondition(conditions.toList()))
@@ -118,18 +122,35 @@ class MatchBuilder<T : Any> {
      * Build the $match stage from accumulated conditions.
      */
     internal fun build(): AggregationOperation {
+
+
         if (conditions.isEmpty()) {
-            // Empty match (matches all)
             return Aggregation.match(Criteria())
         }
-        
-        // Combine all conditions with AND
-        val criteria = if (conditions.size == 1) {
-            conditions[0].toCriteria()
+
+        val hasExpr = conditions.any { it is Condition.ExprCondition }
+
+        if (hasExpr) {
+            val matchDoc = Document()
+            conditions.forEach { condition ->
+                when (condition) {
+                    is Condition.ExprCondition -> {
+                        matchDoc["\$expr"] = condition.expression
+                    }
+                    else -> {
+                        val criteria = condition.toCriteria()
+                        matchDoc.putAll(criteria.criteriaObject)
+                    }
+                }
+            }
+            return CustomAggregationOperation(Document("\$match", matchDoc))
         } else {
-            Criteria().andOperator(*conditions.map { it.toCriteria() }.toTypedArray())
+            val criteria = if (conditions.size == 1) {
+                conditions[0].toCriteria()
+            } else {
+                Criteria().andOperator(*conditions.map { it.toCriteria() }.toTypedArray())
+            }
+            return Aggregation.match(criteria)
         }
-        
-        return Aggregation.match(criteria)
     }
 }
