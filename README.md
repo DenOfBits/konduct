@@ -2,10 +2,13 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.22-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![](https://jitpack.io/v/DenOfBits/konduct.svg)](https://jitpack.io/#/DenOfBits/konduct)
 
 > A Kotlin DSL for MongoDB aggregation pipelines - Inspired by JetBrains Exposed
 
 **Konduct** provides a type-safe, fluent API for building MongoDB aggregation pipelines in Kotlin. Write aggregations that feel natural and catch errors at compile time.
+
+Check full documention [here](https://denofbits.github.io/konduct)
 
 ## Features
 
